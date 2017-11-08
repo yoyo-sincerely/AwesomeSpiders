@@ -24,11 +24,12 @@ except:
     import http.cookiejar as cookielib
 
 TXT = '..\\data\\POJ\\PojLoginLog.txt'
+PROBLEMLIST = '..\\data\\POJ\\ProblemList.txt'
+
 url = 'http://poj.org'
 UA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.101 Safari/537.36'
 
-datas = {'source': 'index_nav',
-         'remember': 'on'}
+datas = {}
 
 headers = {'Host':'poj.org',
            'Referer': 'http://poj.org/',
@@ -39,17 +40,18 @@ headers = {'Host':'poj.org',
 
 # 尝试使用cookie信息
 session = requests.session()
-session.cookies = cookielib.LWPCookieJar(filename='cookies')
-try:
-    session.cookies.load(ignore_discard=True)
-except:
-    print("Cookies未能加载")
-    #cookies加载不成功，则输入账号密码信息
-    datas['form_account'] = input('Please input your account:')
-    datas['form_password'] = input('Please input your password:')
+# session.cookies = cookielib.LWPCookieJar(filename='cookies')
+# try:
+#     session.cookies.load(ignore_discard=True)
+# except:
+#     print("Cookies未能加载")
+#     #cookies加载不成功，则输入账号密码信息
+#     datas['form_account'] = "yoyo1995"
+#     datas['form_password'] = "yoyo331200"
+login = None
 
 def main():
-    txt = open(TXT, 'r+', encoding = 'utf-8')
+    txt = open(TXT, 'w', encoding = 'utf-8')
 
     Poj_session = requests.session()
     f = Poj_session.get(url, headers = headers)
@@ -58,6 +60,7 @@ def main():
     
     login_td = soup.find('form', {'action':'login'})
     login = login_td.find('input',{'name':'B1'})['value']
+    print(login)
 
     txt.close()
 
@@ -74,7 +77,17 @@ def isLogin():
         return False
 
 def login():
-    pass
+    datas['user_id1'] = "yoyo1995"
+    datas['password1'] = "yoyo331200"
+    datas['B1'] = login
+    login_page = session.post(url, data=datas, headers=headers)
+    problemlist = open(PROBLEMLIST, 'w', encoding = 'utf-8')
+    print(login_page.content)
+    soup = BeautifulSoup(login_page.content,"html.parser")
+    problemlist.write(soup.prettify())
+    problemlist.close()
+    # session.cookies.save()
 
 if __name__ == '__main__':
     main()
+    login()
